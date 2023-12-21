@@ -12,7 +12,7 @@ class User(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "El usuario con nombre {}".format(self.user_name)
+        return "{}".format(self.user_name)
 
     def serialize(self):
         return {
@@ -33,7 +33,7 @@ class Planet(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "El planeta con nombre {}".format(self.name)
+        return "{}".format(self.name)
 
     def serialize(self):
         return {
@@ -58,7 +58,7 @@ class Character(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "El personaje con nombre {}".format(self.name)
+        return "{}".format(self.name)
 
     def serialize(self):
         return {
@@ -83,7 +83,7 @@ class Starship(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "La nave con nombre {}".format(self.name)
+        return "{}".format(self.name)
 
     def serialize(self):
         return {
@@ -109,7 +109,7 @@ class Vehicle(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "El vehiculo con nombre {}".format(self.name)
+        return "{}".format(self.name)
 
     def serialize(self):
         return {
@@ -135,7 +135,7 @@ class FilmData(db.Model):
     vehicle = db.relationship("Vehicle")
 
     def __repr__(self):
-        return "Los datos de la pelicula {}".format(self.id)
+        return "Datos de pelicula {}".format(self.id)
 
     def serialize(self):
         return {
@@ -156,7 +156,7 @@ class Film(db.Model):
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
-        return "La pelicula {}".format(self.title)
+        return "{}".format(self.title)
 
     def serialize(self):
         return {
@@ -211,7 +211,7 @@ class Favorite(db.Model):
     )
 
     def __repr__(self):
-        return "Favoritos del usuario {}".format(self.user_id.user_name)
+        return "{}".format(self.user_id.user_name)
 
     def serialize(self):
         return {
