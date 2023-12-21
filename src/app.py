@@ -42,14 +42,15 @@ def sitemap():
     return generate_sitemap(app)
 
 
-'''         Status codes
+"""         Status codes
 200 OK: Successful GET requests.
 201 Created: Successful POST requests.
 204 No Content: Successful DELETE requests with no additional content to return.
 400 Bad Request: Invalid data or missing parameters in the request body.
 404 Not Found: The requested resource (user, planet, character, etc.) is not found.
 409 Conflict: Indicates a conflict, such as trying to add a resource that already exists in the list of favorites.
-'''
+"""
+
 
 @app.route("/user", methods=["GET"])
 def get_users():
@@ -201,7 +202,7 @@ def create_character():
     if "name" not in body:
         return jsonify({"msg": "name parameter is required"}), 400
     if "homeworld_id" not in body:
-        return jsonify({"msg": "homeworld parameter is required"}), 400
+        return jsonify({"msg": "homeworld_id parameter is required"}), 400
     if "is_active" not in body:
         return jsonify({"msg": "is_active parameter is required"}), 400
     new_character = Character()
@@ -247,16 +248,20 @@ def delete_single_character(character_id):
 def get_favorites(user_id):
     user = User.query.get(user_id)
     if user is None:
-        return jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}), 404
+        return (
+            jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}),
+            404,
+        )
     favorite_planets = (
         db.session.query(Favorite, Planet)
         .join(Planet)
         .filter(Favorite.user_id == user_id)
         .all()
     )
+
     favorite_planets_serialize = []
-    for planet_item in favorite_planets:
-        favorite_planets_serialize.append({"Planet": planet_item.serialize()})
+    for favorite_planet, planet_item in favorite_planets:
+        favorite_planets_serialize.append({"planet": planet_item.serialize()})
 
     favorite_characters = (
         db.session.query(Favorite, Character)
@@ -265,15 +270,15 @@ def get_favorites(user_id):
         .all()
     )
     favorite_characters_serialize = []
-    for character_item in favorite_characters:
-        favorite_characters_serialize.append({"Character": character_item.serialize()})
+    for favorite_character, character_item in favorite_characters:
+        favorite_characters_serialize.append({"character": character_item.serialize()})
 
     return (
         jsonify(
             {
                 "msg": "ok",
                 "user": user.serialize(),
-                "Favorite planets": favorite_characters_serialize,
+                "Favorite planets": favorite_planets_serialize,
                 "Favorite characters": favorite_characters_serialize,
             }
         ),
@@ -287,9 +292,15 @@ def add_favorite_planet(user_id, planet_id):
     planet = Planet.query.get(planet_id)
 
     if user is None:
-        return jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}), 404
+        return (
+            jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}),
+            404,
+        )
     if planet is None:
-        return jsonify({"msg": "The planet with id {} doesn't exist".format(planet_id)}), 404
+        return (
+            jsonify({"msg": "The planet with id {} doesn't exist".format(planet_id)}),
+            404,
+        )
 
     favorite_planets = (
         db.session.query(Favorite)
@@ -322,15 +333,26 @@ def delete_favorite_planet(user_id, planet_id):
     db.session.commit()
     return jsonify({"msg": "Favorite planet deleted successfully"}), 200
 
-@app.route("/favorite/user/<int:user_id>/character/<int:character_id>", methods=["POST"])
+
+@app.route(
+    "/favorite/user/<int:user_id>/character/<int:character_id>", methods=["POST"]
+)
 def add_favorite_character(user_id, character_id):
     user = User.query.get(user_id)
     character = Character.query.get(character_id)
 
     if user is None:
-        return jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}), 404
+        return (
+            jsonify({"msg": "The user with id {} doesn't exist".format(user_id)}),
+            404,
+        )
     if character is None:
-        return jsonify({"msg": "The character with id {} doesn't exist".format(character_id)}), 404
+        return (
+            jsonify(
+                {"msg": "The character with id {} doesn't exist".format(character_id)}
+            ),
+            404,
+        )
 
     favorite_character = (
         db.session.query(Favorite)
@@ -339,7 +361,7 @@ def add_favorite_character(user_id, character_id):
     )
 
     if favorite_character:
-        return jsonify({"msg": "It's already on favorites list"}), 409  
+        return jsonify({"msg": "It's already on favorites list"}), 409
 
     new_favorite = Favorite(user_id=user_id, character_id=character_id)
     db.session.add(new_favorite)

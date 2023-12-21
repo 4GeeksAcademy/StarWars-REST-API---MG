@@ -38,7 +38,7 @@ class Planet(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.user_name,
+            "name": self.name,
             "population": self.population,
             "terrain": self.terrain,
             "climate": self.climate,
@@ -53,7 +53,7 @@ class Character(db.Model):
     height = db.Column(db.Float)
     mass = db.Column(db.Float)
     birth_year = db.Column(db.String(50))
-    homeworld_id = db.Column(db.Integer, db.ForeignKey("planet.id"))
+    homeworld_id = db.Column(db.Integer, db.ForeignKey("planet.id"), nullable=False)
     homeworld = db.relationship("Planet")
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
@@ -63,11 +63,11 @@ class Character(db.Model):
     def serialize(self):
         return {
             "id": self.id,
-            "name": self.user_name,
+            "name": self.name,
             "height": self.height,
             "mass": self.mass,
             "birth_year": self.birth_year,
-            "homeworld": self.homeworld.serialize() if self.homeworld else None,
+            "homeworld": self.homeworld.serialize(),
             "is_active": self.is_active,
         }
 
@@ -101,7 +101,9 @@ class Vehicle(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(80), unique=True, nullable=False)
     model = db.Column(db.String(64))
-    vehicle_type = db.Column(db.Enum("Squad transport", "Speeder bike"))
+    vehicle_type = db.Column(
+        db.Enum("Squad transport", "Speeder bike", name="vehicle_types")
+    )
     pilot_id = db.Column(db.Integer, db.ForeignKey("character.id"))
     pilot = db.relationship("Character")
     is_active = db.Column(db.Boolean(), unique=False, nullable=False)
@@ -151,7 +153,7 @@ class Film(db.Model):
     title = db.Column(db.String())
     film_data_id = db.Column(db.Integer, db.ForeignKey("film_data.id"))
     film_data = db.relationship("FilmData")
-    is_active = db.Column(db.Booelan(), unique=False, nullable=False)
+    is_active = db.Column(db.Boolean(), unique=False, nullable=False)
 
     def __repr__(self):
         return "La pelicula {}".format(self.title)
@@ -180,6 +182,33 @@ class Favorite(db.Model):
     vehicle = db.relationship("Vehicle")
     film_id = db.Column(db.Integer, db.ForeignKey("film.id"), nullable=True)
     film = db.relationship("Film")
+    __table_args__ = (
+        db.UniqueConstraint(
+            "user_id",
+            "character_id",
+            "planet_id",
+            "starship_id",
+            "vehicle_id",
+            "film_id",
+            name="uq_user_favorites",
+        ),
+        db.UniqueConstraint(
+            "user_id",
+            "character_id",
+            "planet_id",
+            name="uq_user_char_planet",
+        ),
+        db.UniqueConstraint(
+            "user_id",
+            "character_id",
+            name="uq_user_character",
+        ),
+        db.UniqueConstraint(
+            "user_id",
+            "planet_id",
+            name="uq_user_planet",
+        ),
+    )
 
     def __repr__(self):
         return "Favoritos del usuario {}".format(self.user_id.user_name)
