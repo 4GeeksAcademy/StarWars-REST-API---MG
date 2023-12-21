@@ -51,6 +51,10 @@ def sitemap():
 409 Conflict: Indicates a conflict, such as trying to add a resource that already exists in the list of favorites.
 """
 
+"""
+En caso de quererse reemplazar los DELETE por un PUT y actualizar el estado de 'is_active' a false
+"""
+
 
 @app.route("/user", methods=["GET"])
 def get_users():
@@ -72,13 +76,13 @@ def create_user():
     if body is None:
         return jsonify({"msg": "You must put information in the body"}), 400
     if "user_name" not in body:
-        return jsonify({"msg": "Falta el parametro username"}), 400
+        return jsonify({"msg": "user_name parameter is required"}), 400
     if "email" not in body:
-        return jsonify({"msg": "Falta el parametro email"}), 400
+        return jsonify({"msg": "email parameter is required"}), 400
     if "password" not in body:
-        return jsonify({"msg": "Falta el parametro password"}), 400
+        return jsonify({"msg": "password parameter is required"}), 400
     if "is_active" not in body:
-        return jsonify({"msg": "Falta el parametro is active"}), 400
+        return jsonify({"msg": "is_active parameter is required"}), 400
     new_user = User()
     new_user.user_name = body["user_name"]
     new_user.email = body["email"]
@@ -116,10 +120,9 @@ def delete_single_user(user_id):
     user = User.query.get(user_id)
     if user is None:
         return jsonify({"msg": "User not found"}), 404
-    else:
-        db.session.delete(user)
-        db.session.commit()
-        return jsonify({"msg": "User deleted successfully"}), 200
+    db.session.delete(user)
+    db.session.commit()
+    return jsonify({"msg": "User deleted successfully"}), 200
 
 
 @app.route("/planet", methods=["GET"])
@@ -174,10 +177,9 @@ def delete_single_planet(planet_id):
     planet = Planet.query.get(planet_id)
     if planet is None:
         return jsonify({"msg": "Planet not found"}), 404
-    else:
-        db.session.delete(planet)
-        db.session.commit()
-        return jsonify({"msg": "Planet deleted successfully"}), 200
+    db.session.delete(planet)
+    db.session.commit()
+    return jsonify({"msg": "Planet deleted successfully"}), 200
 
 
 @app.route("/character/", methods=["GET"])
@@ -238,10 +240,9 @@ def delete_single_character(character_id):
     character = Character.query.get(character_id)
     if character is None:
         return jsonify({"msg": "Character not found"}), 404
-    else:
-        db.session.delete(character)
-        db.session.commit()
-        return jsonify({"msg": "Character deleted successfully"}), 200
+    db.session.delete(character)
+    db.session.commit()
+    return jsonify({"msg": "Character deleted successfully"}), 200
 
 
 @app.route("/favorites/user/<int:user_id>", methods=["GET"])
